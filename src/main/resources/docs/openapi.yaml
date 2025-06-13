@@ -1,0 +1,291 @@
+openapi: 3.0.3
+info:
+  title: TaskManager API
+  description: API para gestionar tareas de usuarios
+  version: 1.0.0
+  contact:
+    name: Equipo de Desarrollo - NUEVO SPA
+    email: soporte@nuevospa.fake
+    url: https://nuevospa.fake
+  license:
+    name: Apache 2.0
+    url: http://springdoc.org
+servers:
+  - url: http://localhost:8084/api/v1
+    description: Servidor local de desarrollo
+security:
+  - bearerAuth: []
+paths:
+  /auth/login:
+    post:
+      summary: Login de usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequestDTO'
+      responses:
+        '200':
+          description: Login exitoso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponseDTO'
+        '400':
+          description: Solicitud inválida
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /auth/register:
+    post:
+      summary: Registrar un nuevo usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequestDTO'
+      responses:
+        '201':
+          description: Usuario creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        '400':
+          description: Datos inválidos
+
+  /v1/tasks:
+    get:
+      summary: Listar todas las tareas
+      responses:
+        '200':
+          description: Lista de tareas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskResponseDTO'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+    post:
+      summary: Crear una nueva tarea
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskCreateDTO'
+      responses:
+        '201':
+          description: Tarea creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponseDTO'
+        '400':
+          description: Datos inválidos
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+
+  /v1/tasks/{id}:
+    get:
+      summary: Obtener una tarea por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Tarea encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponseDTO'
+        '404':
+          description: Tarea no encontrada
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+    put:
+      summary: Actualizar una tarea existente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskCreateDTO'
+      responses:
+        '200':
+          description: Tarea actualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponseDTO'
+        '400':
+          description: Datos inválidos
+        '404':
+          description: Tarea no encontrada
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+    patch:
+      summary: Actualizar parcialmente una tarea
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskPartialUpdateDTO'
+      responses:
+        '200':
+          description: Tarea actualizada parcialmente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponseDTO'
+        '400':
+          description: Datos inválidos
+        '404':
+          description: Tarea no encontrada
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+    delete:
+      summary: Eliminar una tarea
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Tarea eliminada
+        '404':
+          description: Tarea no encontrada
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    UnauthorizedError:
+      description: Token inválido, mal formado o no enviado
+      content:
+        application/json:
+          example:
+            error: "Token inválido o mal formado"
+    ForbiddenError:
+      description: Acceso denegado - el token no tiene permisos suficientes
+      content:
+        application/json:
+          example:
+            error: "Acceso denegado"
+
+  schemas:
+    AuthRequestDTO:
+      type: object
+      properties:
+        username:
+          type: string
+          example: user1
+        password:
+          type: string
+          example: secret123
+      required:
+        - username
+        - password
+    AuthResponseDTO:
+      type: object
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+    RegisterRequestDTO:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - password
+    UserDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+      required:
+        - id
+        - username
+    TaskCreateDTO:
+      type: object
+      properties:
+        title:
+          type: string
+          example: Comprar leche
+        description:
+          type: string
+          example: Ir al supermercado antes de las 5pm
+        username:
+          type: string
+          example: user1
+        status:
+          type: string
+          example: pendiente
+      required:
+        - title
+        - username
+        - status
+    TaskResponseDTO:
+      allOf:
+        - $ref: '#/components/schemas/TaskCreateDTO'
+        - type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+    TaskPartialUpdateDTO:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+        username:
+          type: string

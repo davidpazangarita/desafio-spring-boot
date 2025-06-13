@@ -1,72 +1,151 @@
-# Desafío Técnico: Gestión de Tareas con Spring Boot y Java
+# TaskManager API
 
-La empresa NUEVO SPA desea desarrollar una plataforma de gestión de tareas para mejorar la productividad de sus equipos. El sistema debe permitir a los usuarios crear, actualizar, eliminar y listar tareas. Además, se requiere autenticación mediante JWT y documentación de la API utilizando OpenAPI y Swagger.
+API RESTful construida con Spring Boot para la gestión de tareas. Desarrollada como parte de un desafío técnico para Tecnova.
 
-## Objetivo:
-Crear una API RESTful utilizando Spring Boot que gestione usuarios y tareas, aplicando buenas prácticas, principios SOLID y utilizando las tecnologías especificadas.
+## 📌 Descripción
 
-## Requisitos Técnicos:
-### Java:
-- Utiliza Java 17 para la implementación.
-- Utiliza las características de Java 17, como lambdas y streams, cuando sea apropiado.
-- Utilizar Maven como gestor de dependencias
+Este proyecto implementa una arquitectura limpia basada en tres capas (Controller, Service, Repository), incluye autenticación con JWT, documentación Swagger, validaciones, y pruebas unitarias.
 
-### Spring Boot 3.4.x:
-- Construye la aplicación utilizando Spring Boot 3.4.x (última versión disponible).
+---
 
-### Base de Datos:
+## 🔧 Tecnologías Usadas
 
-- Utiliza una base de datos H2.
-- Crea tres tablas: usuarios, tareas y estados_tarea.
-- La tabla usuarios debe contener datos pre cargados.
-- La tabla estados_tarea debe contener estados pre cargados.
+- Java 17
+- Spring Boot 3.5.0
+- Spring Security
+- JWT (JJWT)
+- Spring Data JPA (con H2 para test)
+- Lombok
+- Spring Validation
+- Swagger (springdoc-openapi)
+- Maven
 
-### JPA:
-- Implementa una capa de persistencia utilizando JPA para almacenar y recuperar las tareas.
+---
 
-### JWT (JSON Web Token):
+## 🚀 Ejecución
 
-- Implementa la autenticación utilizando JWT para validar usuarios.
+### Requisitos
 
-### OpenAPI y Swagger:
+- Java 17 o superior
+- Maven 3.8 o superior
 
-- Documenta la API utilizando OpenAPI y Swagger.
+> ⚠️ Este proyecto requiere ser compilado y ejecutado con JDK 17 o una versión posterior.
+> Usar versiones anteriores puede producir errores como `Unsupported major.minor version 52.0`.
 
-## Funcionalidades:
-### Autenticación:
-- Implementa un endpoint para la autenticación de usuarios utilizando JWT. 
+### Cómo verificar la versión de Java:
 
-### CRUD de Tareas:
-- Implementa operaciones CRUD (Crear, Leer, Actualizar, Eliminar) para las tareas.
+```bash
+java -version
+```
+### Compilar y correr:
+```bash
+mvn clean install
+mvn spring-boot:run
+```
 
-## Consideraciones:
-### Seguridad:
-- Asegúrate de que las operaciones CRUD de tareas solo sean accesibles para usuarios autenticados.
+### Ejecutar el JAR generado:
 
-### Documentación:
-- Utiliza OpenAPI y Swagger para documentar claramente la API.
-- Puntos adicionales si se genera el API mediante metodologia API First. Generar el archivo openapi.yml Nota: Ejemplo Plugin Maven groupId org.openapitools, artifactId openapi-generator-maven-plugin
+```bash
+java -jar target/taskmanager-0.0.1-SNAPSHOT.jar
+```
 
-### Código Limpio:
-- Escribe código ordenado, aplicando buenas prácticas y principios SOLID.
+---
+## 📥 Datos Iniciales
 
-### Creatividad
-- Se espera dada la descripción del problema se creen las entidades y metodos en consecuencia a lo solicitado.
+### Usuarios precargados
 
-## Entregables:
-### Repositorio de GitHub:
-- Realiza un Pull request a este repositorio indicando tu nombre, correo y cargo al que postulas.
-- Todos los PR serán rechazados, no es un indicador de la prueba.
+Puedes usar los siguientes usuarios para probar el login y obtener el token JWT:
 
-### Documentación:
-- Incluye instrucciones claras sobre cómo ejecutar y probar la aplicación.
-- **Incluir Json de prueba en un archivo texto o mediante un proyecto postman** Nota: Si no va se restaran puntos de la evaluación
+| Usuario | Contraseña |
+|---------|------------|
+| admin   | admin      |
+| david   | 1234       |
 
-## Evaluación:
-Se evaluará la solución en función de los siguientes criterios:
+> 🔐 Las contraseñas están encriptadas con BCrypt en el archivo `data.sql`.
 
-- Correcta implementación de las funcionalidades solicitadas.
-- Aplicación de buenas prácticas de desarrollo, patrones de diseño y principios SOLID.
-- Uso adecuado de Java 17, Spring Boot 3.4.x, H2, JWT, OpenAPI y Swagger.
-- Claridad y completitud de la documentación.
-- **Puntos extras si la generación de la API se realizo mediante API First**
+---
+
+### Estados de tarea precargados
+
+Los siguientes estados están disponibles por defecto en la base de datos:
+
+- `PENDIENTE`
+- `PROGRESO`
+- `COMPLETADA`
+
+> Estos valores son insertados automáticamente en la tabla `task_status` al iniciar la aplicación.
+
+## 📡 Endpoints Principales
+
+> Todos los endpoints bajo `/api/v1/**` requieren token JWT, excepto los de autenticación.
+
+### Autenticación
+- `POST /auth/register` – Registro de usuario
+- `POST /auth/login` – Inicio de sesión y generación de token
+
+### Gestión de tareas (`/api/v1/tasks`)
+- `POST` – Crear tarea
+- `GET` – Listar todas
+- `GET /{id}` – Obtener por ID
+- `PUT /{id}` – Actualizar completamente
+- `PATCH /{id}` – Actualizar parcialmente
+- `DELETE /{id}` – Eliminar
+
+---
+
+## 🔐 Seguridad
+
+Se implementa seguridad basada en JWT.  
+Los endpoints protegidos deben incluir el header:
+
+```
+Authorization: Bearer <token>
+```
+
+---
+
+## 📑 Documentación Swagger
+
+> Accede a la documentación interactiva en:
+
+```
+http://localhost:8084/swagger-ui.html
+```
+
+Incluye esquema de seguridad JWT (bearer token) correctamente configurado.
+
+---
+
+## 🧪 Pruebas
+
+- Se usan `@SpringBootTest` + `MockMvc`
+- Pruebas sin `@MockBean`, usando flujo real y configuraciones de seguridad adaptadas.
+- Cobertura sobre creación y recuperación de tareas.
+
+---
+
+## 🧰 Postman
+
+Se incluye colección de Postman en:  
+`src/main/resources/postman/taskmanager.postman_collection.json`
+
+La colección contiene pruebas de login, creación, lectura, actualización y eliminación de tareas.  
+Se puede importar directamente en Postman para facilitar la validación de la API.
+
+---
+
+## ✅ Requisitos del Desafío
+
+- ✅ Separación en 3 capas (Controller, Service, Repository)
+- ✅ No se retorna el Entity directamente
+- ✅ Swagger bien integrado con seguridad
+- ✅ No se usan clases deprecadas (`WebSecurityConfigurerAdapter`)
+- ✅ Uso correcto de DTOs y validaciones
+
+---
+
+## ✍ Autor
+
+**David Enrique Paz Angarita**  
+Desarrollador Java Backend  
+[LinkedIn](https://www.linkedin.com/in/depazan)
